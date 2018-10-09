@@ -1,0 +1,10 @@
+userPoolId: ${userPoolId}
+awsregion: us-east-1
+enableSecurity: S
+
+spring:
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
