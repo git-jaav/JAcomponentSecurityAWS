@@ -21,6 +21,7 @@ import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import pe.jaav.sistemas.spring.security.AwsCognitoJwtAuthenticationFilter;
 import pe.jaav.sistemas.spring.security.AwsCognitoRSAKeyProvider;
+import pe.jaav.sistemas.spring.utiles.Constant;
 
 @Configuration
 @EnableWebSecurity
@@ -50,7 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
     	boolean filtrarPorSeguridad = false;
-    	if("S".equals(enableSecurity)){
+    	if(Constant.SI_db.equals(enableSecurity)){
     		filtrarPorSeguridad = true;
     	}
     	
