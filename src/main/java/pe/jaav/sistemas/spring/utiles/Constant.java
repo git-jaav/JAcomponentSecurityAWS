@@ -19,6 +19,7 @@ public class Constant {
 	public static final String RESULT_OK = "OK";
 	public static final String RESULT_ERROR = "ERROR";
 	
-	
+	public static final String NULL_UPPER = "NULL";
+	public static final String NULL_LOWER = "null";
 	
 }

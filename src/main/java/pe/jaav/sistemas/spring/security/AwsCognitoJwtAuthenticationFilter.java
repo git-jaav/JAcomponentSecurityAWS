@@ -28,6 +28,8 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 
+import pe.jaav.sistemas.spring.utiles.Constant;
+
 @Component
 public class AwsCognitoJwtAuthenticationFilter extends GenericFilterBean {
 
@@ -84,34 +86,36 @@ public class AwsCognitoJwtAuthenticationFilter extends GenericFilterBean {
 			filterChain.doFilter(request, response);
 		}else {
 			try {
-				tokenJWT = rq.getHeader(HEADER_AUTHORIZATION);
-	
-				if (tokenJWT != null) {
-	
+				/**Verificacion del TOKE en dos Etapas ... */
+				tokenJWT = rq.getHeader(HEADER_AUTHORIZATION);	
+				if (tokenJWT != null) {	
 					tokenJWT = tokenJWT.replaceAll(HEADER_BEARER, EMPTY);
 	
-					verificadorJWT.verify(tokenJWT);
-	
-					JWTClaimsSet tokenCognitoDecodificado = JWTParser.parse(tokenJWT).getJWTClaimsSet();
-	
-					String usuarioCognito = "";
-					
-					if(tokenCognitoDecodificado.getClaims().get(COGNITO_USERNAME) != null ) {
-						usuarioCognito = tokenCognitoDecodificado.getClaims().get(COGNITO_USERNAME).toString();
-					}else {
-						usuarioCognito = tokenCognitoDecodificado.getClaims().get(CUSTOM_USERNAME).toString();
-					}
-	
-					if (usuarioCognito != null) {
-	
-						List<String> groups = (List<String>) tokenCognitoDecodificado.getClaims().get(COGNITO_GROUPS);
-						List<GrantedAuthority> listaRolesSpring = convertirLista(groups);
+					/**Prevenir el Caso que se envie el PREFIJO sin TOKEN*/
+					if(!tokenJWT.equals(Constant.NULL_LOWER) && !tokenJWT.equals(Constant.NULL_UPPER)){
+						verificadorJWT.verify(tokenJWT);
 						
-						User usuarioTokenJWT = new User(usuarioCognito, EMPTY, listaRolesSpring);
-	
-						authentication = new UsernamePasswordAuthenticationToken(usuarioTokenJWT, EMPTY, listaRolesSpring);
+						JWTClaimsSet tokenCognitoDecodificado = JWTParser.parse(tokenJWT).getJWTClaimsSet();
+		
+						String usuarioCognito = "";
+						
+						if(tokenCognitoDecodificado.getClaims().get(COGNITO_USERNAME) != null ) {
+							usuarioCognito = tokenCognitoDecodificado.getClaims().get(COGNITO_USERNAME).toString();
+						}else {
+							usuarioCognito = tokenCognitoDecodificado.getClaims().get(CUSTOM_USERNAME).toString();
+						}
+		
+						if (usuarioCognito != null) {
+		
+							List<String> groups = (List<String>) tokenCognitoDecodificado.getClaims().get(COGNITO_GROUPS);
+							List<GrantedAuthority> listaRolesSpring = convertirLista(groups);
+							
+							User usuarioTokenJWT = new User(usuarioCognito, EMPTY, listaRolesSpring);
+		
+							authentication = new UsernamePasswordAuthenticationToken(usuarioTokenJWT, EMPTY, listaRolesSpring);
+						}						
 					}
-	
+
 				}
 	
 				if (authentication != null) {
